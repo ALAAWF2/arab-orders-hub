@@ -1,73 +1,158 @@
-# Welcome to your Lovable project
 
-## Project info
+# نظام إدارة المنتجات والطلبات
 
-**URL**: https://lovable.dev/projects/aa105727-4145-4618-83c4-c83cbb8e3b1e
+نظام ويب كامل باللغة العربية (RTL) لعرض المنتجات وإرسال الطلبات وإدارتها، موجه للمعارض والمستودعات.
 
-## How can I edit this code?
+## 🚀 الميزات الرئيسية
 
-There are several ways of editing your application.
+### 📱 الصفحة الرئيسية (index.html)
+- **عرض المنتجات**: شبكة بطاقات تفاعلية مع صور وتفاصيل كاملة
+- **البحث والفلترة**: 
+  - بحث نصي بالاسم المستعار
+  - بحث بالباركود للعثور الفوري
+  - فلترة حسب الفئة ونطاق السعر
+  - ترتيب حسب المبيعات والسعر والمخزون
+- **نظام السلة**: إضافة وتعديل وإدارة المنتجات
+- **المنتجات المخصصة**: إضافة منتجات غير موجودة
+- **المفضلة**: حفظ المنتجات المفضلة محلياً
+- **تسجيل الدخول**: مصادقة آمنة مع Firebase
 
-**Use Lovable**
+### 📊 صفحة إدارة الطلبات (orders.html)
+- **إحصائيات متقدمة**: إجمالي الطلبات، المرسلة، المعلقة
+- **فلترة ذكية**: حسب المستودع، الحالة، التاريخ
+- **إدارة الطلبات**: عرض التفاصيل وتحديث الحالة
+- **تصدير Excel**: تحميل الطلبات كملفات Excel
+- **واجهة سهلة**: تصميم مبسط للمديرين
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/aa105727-4145-4618-83c4-c83cbb8e3b1e) and start prompting.
+### 🔧 الميزات التقنية
+- **Firebase Integration**: مصادقة وقاعدة بيانات سحابية
+- **Responsive Design**: متوافق مع جميع الأجهزة
+- **RTL Support**: دعم كامل للغة العربية
+- **Real-time Updates**: تحديثات فورية للبيانات
+- **Excel Integration**: تحديث المنتجات من ملفات Excel
 
-Changes made via Lovable will be committed automatically to this repo.
+## 🏗️ هيكل المشروع
 
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+```
+├── index.html              # الصفحة الرئيسية
+├── orders.html             # صفحة إدارة الطلبات
+├── products.js             # بيانات المنتجات
+├── images/                 # صور المنتجات
+│   ├── P12345.jpg
+│   ├── P12346.jpg
+│   └── ...
+├── .github/
+│   └── workflows/
+│       └── update-products.yml  # تحديث تلقائي من Excel
+└── README.md
 ```
 
-**Edit a file directly in GitHub**
+## 🔥 Firebase Configuration
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+```javascript
+const firebaseConfig = {
+  apiKey: "AIzaSyDBhsMvDPwECDlFNYNkmFXDVq4nWrEejJc",
+  authDomain: "orders-fb3bf.firebaseapp.com",
+  projectId: "orders-fb3bf",
+  storageBucket: "orders-fb3bf.firebasestorage.app",
+  messagingSenderId: "970674722848",
+  appId: "1:970674722848:web:e2e17f7a62bf59e51f0445"
+};
+```
 
-**Use GitHub Codespaces**
+## 📊 هيكل قاعدة البيانات
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+### Collection: users
+```json
+{
+  "uid": {
+    "mall": "اسم المعرض",
+    "warehouse": "اسم المستودع"
+  }
+}
+```
 
-## What technologies are used for this project?
+### Collection: orders
+```json
+{
+  "mall": "اسم المعرض",
+  "warehouse": "اسم المستودع", 
+  "userId": "uid",
+  "orders": [
+    {
+      "code": "P12345",
+      "name": "اسم المنتج",
+      "alias": "المستعار",
+      "qty": 2
+    }
+  ],
+  "hasExtras": true,
+  "timestamp": "2024-01-01T12:00:00Z",
+  "status": "معلق"
+}
+```
 
-This project is built with:
+## 🔄 تحديث المنتجات من Excel
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+1. أضف ملف `products.xlsx` إلى المستودع
+2. يجب أن يحتوي على الأعمدة التالية:
+   - المستودع / outlet
+   - الفئة / category  
+   - الرمز / code
+   - المستعار / alias
+   - الاسم / name
+   - السعر / price
+   - المخزون / stock
+   - المبيعات / sales
 
-## How can I deploy this project?
+3. سيتم تحديث `products.js` تلقائياً عبر GitHub Actions
 
-Simply open [Lovable](https://lovable.dev/projects/aa105727-4145-4618-83c4-c83cbb8e3b1e) and click on Share -> Publish.
+## 🚀 التشغيل والنشر
 
-## Can I connect a custom domain to my Lovable project?
+### محلياً
+```bash
+# فتح الملفات في خادم محلي
+python -m http.server 8000
+# أو
+npx serve .
+```
 
-Yes, you can!
+### النشر
+- **GitHub Pages**: مفعل تلقائياً
+- **Netlify**: سحب ونشر فوري
+- **Vercel**: نشر من GitHub مباشرة
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+## 🎨 التصميم والألوان
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+- **الألوان الأساسية**: تدرجات زرقاء وبنفسجية
+- **الخط**: Noto Sans Arabic
+- **الأيقونات**: Font Awesome
+- **التأثيرات**: انتقالات سلسة وظلال حديثة
+
+## 🔐 الأمان
+
+- مصادقة Firebase آمنة
+- قواعد Firestore محمية
+- تشفير البيانات الحساسة
+- جلسات آمنة ومحدودة الوقت
+
+## 📱 المتطلبات
+
+- متصفح حديث يدعم ES6+
+- اتصال إنترنت للـ Firebase
+- دعم JavaScript
+
+## 🛠️ الصيانة
+
+- **تحديث المنتجات**: عبر ملفات Excel
+- **إدارة المستخدمين**: عبر Firebase Console  
+- **النسخ الاحتياطي**: تلقائي مع Firebase
+- **المراقبة**: Firebase Analytics
+
+## 📞 الدعم الفني
+
+لأي استفسارات أو مشاكل تقنية، يرجى التواصل مع فريق التطوير.
+
+---
+
+**نظام إدارة المنتجات والطلبات** - حل شامل للمعارض والمستودعات 🏪✨

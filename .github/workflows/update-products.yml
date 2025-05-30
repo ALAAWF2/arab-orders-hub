@@ -1,0 +1,78 @@
+
+name: تحديث المنتجات من Excel
+
+on:
+  push:
+    paths:
+      - 'products.xlsx'
+  workflow_dispatch:
+
+jobs:
+  update-products:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+    
+    - name: Install dependencies
+      run: |
+        npm install xlsx
+    
+    - name: Convert Excel to JS
+      run: |
+        node -e "
+        const XLSX = require('xlsx');
+        const fs = require('fs');
+        
+        // Read Excel file
+        const workbook = XLSX.readFile('products.xlsx');
+        const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+        const data = XLSX.utils.sheet_to_json(worksheet);
+        
+        // Transform data to match required format
+        const transformedData = data.map(row => ({
+          outlet: row['المستودع'] || row['outlet'] || '',
+          category: row['الفئة'] || row['category'] || '',
+          code: row['الرمز'] || row['code'] || '',
+          alias: row['المستعار'] || row['alias'] || '',
+          name: row['الاسم'] || row['name'] || '',
+          price: parseFloat(row['السعر'] || row['price'] || 0),
+          stock: parseInt(row['المخزون'] || row['stock'] || 0),
+          sales: parseInt(row['المبيعات'] || row['sales'] || 0)
+        }));
+        
+        // Generate JavaScript file
+        const jsContent = \`// بيانات المنتجات - تم تحديثها تلقائياً من Excel
+// آخر تحديث: \${new Date().toLocaleString('ar-SA')}
+const data = \${JSON.stringify(transformedData, null, 4)};
+
+// تصدير البيانات للاستخدام في الصفحات الأخرى
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = { data };
+}\`;
+        
+        // Write to products.js
+        fs.writeFileSync('products.js', jsContent, 'utf8');
+        console.log('✅ تم تحديث ملف products.js بنجاح');
+        console.log('📊 عدد المنتجات:', transformedData.length);
+        "
+    
+    - name: Commit changes
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add products.js
+        git diff --staged --quiet || git commit -m "🔄 تحديث بيانات المنتجات من Excel"
+        git push
+    
+    - name: Create deployment comment
+      run: |
+        echo "✅ تم تحديث بيانات المنتجات بنجاح"
+        echo "📅 وقت التحديث: $(date)"
+        echo "🔗 يمكنك الآن رؤية التحديثات في الموقع"
